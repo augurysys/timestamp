@@ -1,8 +1,6 @@
 // Package timestamp is used for marshaling/unmarshaling UNIX timestamps
 // to/from JSON, GOB and BSON by implementing the appropriate interfaces for
 // encoding/json, encoding/gob and labix.org/v2/mgo respectively.
-//
-// by gbehaim@augury.com
 package timestamp
 
 import (

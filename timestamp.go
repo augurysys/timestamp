@@ -4,8 +4,6 @@
 package timestamp
 
 import (
-	"bytes"
-	"encoding/gob"
 	"fmt"
 	"labix.org/v2/mgo/bson"
 	"strconv"
@@ -20,7 +18,7 @@ type Timestamp time.Time
 
 // MarshalJSON defines how encoding/json marshals the object to JSON,
 // the result is a string of the UNIX timestamp
-func (t *Timestamp) MarshalJSON() ([]byte, error) {
+func (t Timestamp) MarshalJSON() ([]byte, error) {
 	ts := t.Time().Unix()
 	stamp := fmt.Sprint(ts)
 
@@ -75,8 +73,8 @@ func (t Timestamp) String() string {
 
 // Time returns a time.Time object with the same time value as the Timestamp
 // object
-func (t *Timestamp) Time() time.Time {
-	return time.Time(*t)
+func (t Timestamp) Time() time.Time {
+	return time.Time(t)
 }
 
 // Now returns a pointer to a Timestamp object with the current time,
@@ -88,7 +86,7 @@ func Now() *Timestamp {
 
 // Unix calls the Unix() method of a time.Time object with the same time values
 // as the timestamp object
-func (t *Timestamp) Unix() int64 {
+func (t Timestamp) Unix() int64 {
 	return t.Time().Unix()
 }
 
@@ -108,27 +106,22 @@ func Unix(sec, nsec int64) *Timestamp {
 
 // GobEncode returns a byte slice representing the encoding of the Timestamp
 // object, it implements the GobEncoder interface
-func (t *Timestamp) GobEncode() ([]byte, error) {
-	var b bytes.Buffer
-	enc := gob.NewEncoder(&b)
-
-	err := enc.Encode(t.Time())
-
-	return b.Bytes(), err
+func (t Timestamp) GobEncode() ([]byte, error) {
+	return t.Time().MarshalBinary()
 }
 
 // GobDecode decodes a Timestamp object from a byte slice
 // and overwrites the receiver,
 // it implements the GobDecoder interface
-func (t *Timestamp) GobDecode(b []byte) error {
-	r := bytes.NewReader(b)
+// GobDecode implements the gob.GobDecoder interface.
+func (t *Timestamp) GobDecode(data []byte) error {
 	var tm time.Time
 
-	dec := gob.NewDecoder(r)
-	if err := dec.Decode(&tm); err != nil {
+	if err := tm.UnmarshalBinary(data); err != nil {
 		return err
 	}
 
 	*t = Timestamp(tm)
+
 	return nil
 }

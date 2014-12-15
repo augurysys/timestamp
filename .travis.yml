@@ -2,10 +2,3 @@ language: go
 
 go:
   - 1.4
-
-install:
-  # install build dependencies
-  - go get -v -u github.com/tools/godep
-
-  # restore project dependencies
-  - godep restore

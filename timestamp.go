@@ -5,9 +5,10 @@ package timestamp
 
 import (
 	"fmt"
-	"labix.org/v2/mgo/bson"
 	"strconv"
 	"time"
+
+	"gopkg.in/mgo.v2/bson"
 )
 
 // Timestamp is a named alias for time.Time,

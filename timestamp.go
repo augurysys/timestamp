@@ -4,6 +4,7 @@
 package timestamp
 
 import (
+	"encoding/xml"
 	"fmt"
 	"strconv"
 	"time"
@@ -123,6 +124,34 @@ func (t *Timestamp) GobDecode(data []byte) error {
 	}
 
 	*t = Timestamp(tm)
+
+	return nil
+}
+
+// MarshalXML defines how encoding/xml marshals the object to XML,
+// the result is a string of the UNIX timestamp
+func (t Timestamp) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
+	ts := t.Time().Unix()
+	stamp := fmt.Sprint(ts)
+
+	return e.EncodeElement(stamp, start)
+}
+
+// UnmarshalXML defines how encoding/xml unmarshals the object from XML,
+// a UNIX timestamp string is converted to int which is used for the Timestamp
+// object value
+func (t *Timestamp) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
+	var content string
+	if err := d.DecodeElement(&content, &start); err != nil {
+		return err
+	}
+
+	ts, err := strconv.Atoi(content)
+	if err != nil {
+		return err
+	}
+
+	*t = Timestamp(time.Unix(int64(ts), 0))
 
 	return nil
 }

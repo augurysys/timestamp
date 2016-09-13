@@ -76,6 +76,10 @@ func (t Timestamp) String() string {
 // Time returns a time.Time object with the same time value as the Timestamp
 // object
 func (t Timestamp) Time() time.Time {
+	if time.Time(t).IsZero() {
+		return time.Unix(0, 0)
+	}
+
 	return time.Time(t)
 }
 

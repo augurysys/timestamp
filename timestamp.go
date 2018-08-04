@@ -159,3 +159,11 @@ func (t *Timestamp) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
 
 	return nil
 }
+
+func (t *Timestamp) ToMili() int64 {
+	return t.Time().UnixNano() / int64(time.Millisecond)
+}
+
+func FromMili(ts int64) Timestamp {
+	return *Unix(ts / 1000, 0 )
+}

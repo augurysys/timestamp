@@ -136,3 +136,22 @@ func TestGobEncodeDecode(t *testing.T) {
 		t.Fail()
 	}
 }
+
+func TestFromMili(t *testing.T) {
+	ts := int64(1529065200999)
+	result := FromMili(ts).Time().Month().String()
+	if result != "June" {
+		t.Fail()
+	}
+}
+
+func TestToMili(t *testing.T) {
+	numSeconds := int64(3000)
+	tm := time.Unix(numSeconds, 0)
+	ts := Timestamp(tm)
+
+	result := ts.ToMili()
+	if result != numSeconds * 1000 {
+		t.Fail()
+	}
+}

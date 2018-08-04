@@ -160,7 +160,7 @@ func (t *Timestamp) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
 	return nil
 }
 
-func (t *Timestamp) ToMili() int64 {
+func (t Timestamp) ToMili() int64 {
 	return t.Time().UnixNano() / int64(time.Millisecond)
 }
 

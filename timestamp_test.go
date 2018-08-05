@@ -137,14 +137,6 @@ func TestGobEncodeDecode(t *testing.T) {
 	}
 }
 
-func TestFromMili(t *testing.T) {
-	ts := int64(1529065200999)
-	result := FromMili(ts).Time().Month().String()
-	if result != "June" {
-		t.Fail()
-	}
-}
-
 func TestToMili(t *testing.T) {
 	numSeconds := int64(3000)
 	tm := time.Unix(numSeconds, 0)

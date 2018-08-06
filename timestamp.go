@@ -36,7 +36,12 @@ func (t *Timestamp) UnmarshalJSON(b []byte) error {
 		return err
 	}
 
-	*t = Timestamp(time.Unix(int64(ts), 0))
+	int64ts := int64(ts)
+	if len(b) > 10 {
+		//support for milisecond timestamps
+		int64ts = int64(ts / 1000)
+	}
+	*t = Timestamp(time.Unix(int64ts, 0))
 
 	return nil
 }
@@ -158,4 +163,8 @@ func (t *Timestamp) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
 	*t = Timestamp(time.Unix(int64(ts), 0))
 
 	return nil
+}
+
+func (t Timestamp) ToMili() int64 {
+	return t.Time().UnixNano() / int64(time.Millisecond)
 }

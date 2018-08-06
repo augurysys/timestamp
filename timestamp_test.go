@@ -136,3 +136,14 @@ func TestGobEncodeDecode(t *testing.T) {
 		t.Fail()
 	}
 }
+
+func TestToMili(t *testing.T) {
+	numSeconds := int64(3000)
+	tm := time.Unix(numSeconds, 0)
+	ts := Timestamp(tm)
+
+	result := ts.ToMili()
+	if result != numSeconds * 1000 {
+		t.Fail()
+	}
+}

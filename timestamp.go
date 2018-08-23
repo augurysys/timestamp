@@ -41,7 +41,7 @@ func (t *Timestamp) UnmarshalJSON(b []byte) error {
 		//support for milisecond timestamps
 		int64ts = int64(ts / 1000)
 	}
-	*t = Timestamp(time.Unix(int64ts, 0))
+	*t = Timestamp(time.Unix(int64ts, 0).UTC())
 
 	return nil
 }

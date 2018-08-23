@@ -105,7 +105,7 @@ func TestFromTime(t *testing.T) {
 }
 
 func TestFromUnix(t *testing.T) {
-	tm := time.Unix(3000, 0)
+	tm := time.Unix(3000, 0).UTC()
 	ts := Unix(3000, 0)
 
 	if ts.Time() != tm {

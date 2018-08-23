@@ -98,7 +98,7 @@ func Now() *Timestamp {
 // Unix calls the Unix() method of a time.Time object with the same time values
 // as the timestamp object
 func (t Timestamp) Unix() int64 {
-	return t.Time().UTC().Unix()
+	return t.Time().Unix()
 }
 
 // Time returns a pointer to a Timestamp object which is created
@@ -111,7 +111,7 @@ func Time(t time.Time) *Timestamp {
 // Unix returns a pointer to a Timestamp object which is created from
 // a UNIX timestamp
 func Unix(sec, nsec int64) *Timestamp {
-	t := time.Unix(sec, nsec)
+	t := time.Unix(sec, nsec).UTC()
 	return Time(t)
 }
 

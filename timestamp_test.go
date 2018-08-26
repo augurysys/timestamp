@@ -1,8 +1,6 @@
 package timestamp
 
 import (
-	"bytes"
-	"encoding/gob"
 	"strconv"
 	"testing"
 	"time"
@@ -28,7 +26,7 @@ func TestMarshalJSON(t *testing.T) {
 }
 
 func TestUnmarshalJSON(t *testing.T) {
-	tm := time.Unix(3000, 0)
+	tm := time.Unix(3000, 0).UTC()
 	ts := Timestamp(tm)
 
 	b, err := ts.MarshalJSON()
@@ -107,32 +105,10 @@ func TestFromTime(t *testing.T) {
 }
 
 func TestFromUnix(t *testing.T) {
-	tm := time.Unix(3000, 0)
+	tm := time.Unix(3000, 0).UTC()
 	ts := Unix(3000, 0)
 
 	if ts.Time() != tm {
-		t.Fail()
-	}
-}
-
-func TestGobEncodeDecode(t *testing.T) {
-	ts := Now()
-
-	var b bytes.Buffer
-	enc := gob.NewEncoder(&b)
-	if err := enc.Encode(ts); err != nil {
-		t.Fatal(err)
-	}
-
-	var n Timestamp
-	r := bytes.NewBuffer(b.Bytes())
-
-	dec := gob.NewDecoder(r)
-	if err := dec.Decode(&n); err != nil {
-		t.Fatal(err)
-	}
-
-	if ts.Time() != n.Time() {
 		t.Fail()
 	}
 }
@@ -143,7 +119,7 @@ func TestToMili(t *testing.T) {
 	ts := Timestamp(tm)
 
 	result := ts.ToMili()
-	if result != numSeconds * 1000 {
+	if result != numSeconds*1000 {
 		t.Fail()
 	}
 }

@@ -9,7 +9,7 @@ import (
 	"strconv"
 	"time"
 
-	"gopkg.in/mgo.v2/bson"
+	"github.com/globalsign/mgo/bson"
 )
 
 // Timestamp is a named alias for time.Time,
@@ -41,7 +41,7 @@ func (t *Timestamp) UnmarshalJSON(b []byte) error {
 		//support for milisecond timestamps
 		int64ts = int64(ts / 1000)
 	}
-	*t = Timestamp(time.Unix(int64ts, 0))
+	*t = Timestamp(time.Unix(int64ts, 0).UTC())
 
 	return nil
 }
@@ -111,7 +111,7 @@ func Time(t time.Time) *Timestamp {
 // Unix returns a pointer to a Timestamp object which is created from
 // a UNIX timestamp
 func Unix(sec, nsec int64) *Timestamp {
-	t := time.Unix(sec, nsec)
+	t := time.Unix(sec, nsec).UTC()
 	return Time(t)
 }
 

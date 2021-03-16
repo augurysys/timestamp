@@ -59,7 +59,7 @@ func (t Timestamp) GetBSON() (interface{}, error) {
 // SetBSON defines how labix.org/v2/mgo unmarshals the object from BSON,
 // the raw BSON data is unmarshaled to a time.Time object which is used for the
 // Timestamp object value
-func (t *Timestamp) SetBSON(raw bson.Raw) error {
+func (t *Timestamp) SetBSON(raw bson.RawValue) error {
 	var tm time.Time
 
 	if err := raw.Unmarshal(&tm); err != nil {

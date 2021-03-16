@@ -9,7 +9,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/globalsign/mgo/bson"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 // Timestamp is a named alias for time.Time,

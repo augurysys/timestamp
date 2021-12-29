@@ -6,10 +6,10 @@ package timestamp
 import (
 	"encoding/xml"
 	"fmt"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/bsontype"
 	"strconv"
 	"time"
-
-	"go.mongodb.org/mongo-driver/bson"
 )
 
 // Timestamp is a named alias for time.Time,
@@ -61,8 +61,27 @@ func (t Timestamp) GetBSON() (interface{}, error) {
 // Timestamp object value
 func (t *Timestamp) SetBSON(raw bson.RawValue) error {
 	var tm time.Time
-
 	if err := raw.Unmarshal(&tm); err != nil {
+		return err
+	}
+
+	*t = Timestamp(tm)
+
+	return nil
+}
+
+func (t *Timestamp) MarshalBSONValue() (bsontype.Type, []byte, error) {
+	if t == nil {
+		return bson.MarshalValue(time.Time{})
+	}
+	tm := t.Time()
+	return bson.MarshalValue(tm)
+}
+
+func (t *Timestamp) UnmarshalBSONValue(typ bsontype.Type, data []byte) error {
+	var tm time.Time
+	rv := bson.RawValue{Type: typ, Value: data}
+	if err := rv.Unmarshal(&tm); err != nil {
 		return err
 	}
 

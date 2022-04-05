@@ -1,0 +1,32 @@
+version: 2.1
+
+jobs:
+  lint:
+    docker:
+      - image: 'cimg/go:1.16'
+    working_directory: ~/lint
+    steps:
+      - checkout
+      - run:
+          name: 'Enforce Go Formatted Code'
+          command: 'exit $(go fmt ./... | wc -l | cut -d " " -f1)'
+      - run:
+          name: 'YOU FAILED GO FMT, PLEASE RUN go fmt ./... on your repo (make sure you use go version 1.16)'
+          command: 'echo "YOU FAILED GO FMT, PLEASE RUN go fmt ./... on your repo (make sure you use go version 1.16)"'
+          when: on_fail
+  test:
+    docker:
+      - image: 'cimg/go:1.16'
+    working_directory: ~/go-api
+    steps:
+      - checkout
+      - run:
+          name: 'Run tests'
+          command: 'go test -v -covermode=count -coverpkg=./...  ./...'
+
+
+workflows:
+  tests:
+    jobs:
+      - lint
+      - test

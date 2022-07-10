@@ -1,6 +1,7 @@
 package timestamp
 
 import (
+	"go.mongodb.org/mongo-driver/bson"
 	"strconv"
 	"testing"
 	"time"
@@ -54,16 +55,22 @@ func TestString(t *testing.T) {
 	}
 }
 
-func TestGetBSON(t *testing.T) {
+func TestBSON(t *testing.T) {
 	tm := time.Unix(3000, 0)
 	ts := Timestamp(tm)
 
-	result, err := ts.GetBSON()
+	typ, result, err := ts.MarshalBSONValue()
 	if err != nil {
 		t.Error(err)
 	}
 
-	if result != tm {
+	var tm2 time.Time
+	rv := bson.RawValue{Type: typ, Value: result}
+	if err := rv.Unmarshal(&tm2); err != nil {
+		t.Error(err)
+	}
+
+	if tm2.UTC() != tm.UTC() {
 		t.Fail()
 	}
 }

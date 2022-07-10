@@ -55,6 +55,20 @@ func TestString(t *testing.T) {
 	}
 }
 
+func TestGetBSON(t *testing.T) {
+	tm := time.Unix(3000, 0)
+	ts := Timestamp(tm)
+
+	result, err := ts.GetBSON()
+	if err != nil {
+		t.Error(err)
+	}
+
+	if result != tm {
+		t.Fail()
+	}
+}
+
 func TestBSON(t *testing.T) {
 	tm := time.Unix(3000, 0)
 	ts := Timestamp(tm)

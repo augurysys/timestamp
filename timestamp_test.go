@@ -144,3 +144,25 @@ func TestToMili(t *testing.T) {
 		t.Fail()
 	}
 }
+
+func TestIsEmpty(t *testing.T) {
+	var dateTimeNil *Timestamp
+	result := dateTimeNil.IsEmpty()
+	if !result {
+		t.Fail()
+	}
+
+	date := time.Date(1970, 1, 1, 0, 0, 0, 0, time.UTC)
+	dateTime := Timestamp(date)
+	result = dateTime.IsEmpty()
+	if !result {
+		t.Fail()
+	}
+
+	date = date.AddDate(1, 0, 0)
+	dateTime = Timestamp(date)
+	result = dateTime.IsEmpty()
+	if result {
+		t.Fail()
+	}
+}

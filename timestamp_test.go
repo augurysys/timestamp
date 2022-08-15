@@ -152,8 +152,15 @@ func TestIsEmpty(t *testing.T) {
 		t.Fail()
 	}
 
-	date := time.Date(1970, 1, 1, 0, 0, 0, 0, time.UTC)
+	date := time.Time{}
 	dateTime := Timestamp(date)
+	result = dateTime.IsEmpty()
+	if !result {
+		t.Fail()
+	}
+
+	date = time.Date(1970, 1, 1, 0, 0, 0, 0, time.UTC)
+	dateTime = Timestamp(date)
 	result = dateTime.IsEmpty()
 	if !result {
 		t.Fail()

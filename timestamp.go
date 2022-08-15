@@ -19,8 +19,6 @@ import (
 // to/from BSON
 type Timestamp time.Time
 
-const invalidYear = 1970
-
 // MarshalJSON defines how encoding/json marshals the object to JSON,
 // the result is a string of the UNIX timestamp
 func (t Timestamp) MarshalJSON() ([]byte, error) {
@@ -193,5 +191,5 @@ func (t Timestamp) ToMili() int64 {
 }
 
 func (t *Timestamp) IsEmpty() bool {
-	return t == nil || t.Time().Year() <= invalidYear
+	return t == nil || t.Time().IsZero() || t.Unix() == 0
 }

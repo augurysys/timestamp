@@ -3,7 +3,7 @@ version: 2.1
 jobs:
   lint:
     docker:
-      - image: 'cimg/go:1.18'
+      - image: 'cimg/go:1.21'
     working_directory: ~/lint
     steps:
       - checkout

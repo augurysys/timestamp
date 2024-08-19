@@ -69,11 +69,7 @@ func (t *Timestamp) SetBSON(raw mgoBson.Raw) error {
 	if tm.IsZero() {
 		*t = Timestamp(time.Time{})
 	} else {
-		rv := raw.Lookup("t")
-		if rv.Type != mgoBson.TypeDateTime {
-			return fmt.Errorf("expected BSON timestamp to be a datetime")
-		}
-		millis := rv.Time().UnixNano() / int64(time.Millisecond)
+		millis := int64(raw[4])<<24 + int64(raw[5])<<16 + int64(raw[6])<<8 + int64(raw[7])
 		*t = Timestamp(time.Unix(tm.Unix(), millis*int64(time.Millisecond)).UTC())
 	}
 

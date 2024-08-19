@@ -33,6 +33,9 @@ func (t Timestamp) MarshalJSON() ([]byte, error) {
 // object value
 func (t *Timestamp) UnmarshalJSON(b []byte) error {
 	var ts int64
+	if len(b) == 0 {
+		return nil
+	}
 	if err := json.Unmarshal(b, &ts); err != nil {
 		return err
 	}

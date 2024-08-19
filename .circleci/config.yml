@@ -7,6 +7,11 @@ jobs:
     working_directory: ~/lint
     steps:
       - checkout
+      - run: git config --global credential.helper store
+      - run: echo "https://${GITHUB_TOKEN}:@github.com" >> ~/.git-credentials
+      - run: git config --global --unset url."ssh://git@github.com".insteadOf "https://github.com"
+      - run: echo 'export GOPRIVATE=github.com/augurysys' >> $BASH_ENV
+      - run: go mod download
       - run:
           name: 'Enforce Go minimal dependencies (Tidy) Code'
           command: go mod tidy && git diff --exit-code -- go.mod go.sum

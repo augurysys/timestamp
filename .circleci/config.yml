@@ -39,5 +39,7 @@ jobs:
 workflows:
   tests:
     jobs:
-      - lint
+      - lint:
+        context:
+          - github
       - test

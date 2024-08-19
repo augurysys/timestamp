@@ -40,4 +40,4 @@ workflows:
   tests:
     jobs:
 #      - lint
-#      - test
+      - test

@@ -21,8 +21,8 @@ type Timestamp time.Time
 // MarshalJSON defines how encoding/json marshals the object to JSON,
 // the result is a string of the UNIX timestamp
 func (t Timestamp) MarshalJSON() ([]byte, error) {
-	ts := t.Time().Unix()
-	stamp := fmt.Sprint(ts)
+	ts := t.Time().UnixNano() / int64(time.Millisecond)
+	stamp := fmt.Sprintf("%d.%03d", ts/1000, ts%1000)
 
 	return []byte(stamp), nil
 }

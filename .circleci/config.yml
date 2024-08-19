@@ -7,17 +7,13 @@ jobs:
     working_directory: ~/lint
     steps:
       - checkout
-      - run: git config --global credential.helper store
-      - run: echo "https://${GITHUB_TOKEN}:@github.com" >> ~/.git-credentials
-      - run: git config --global --unset url."ssh://git@github.com".insteadOf "https://github.com"
-      - run: echo 'export GOPRIVATE=github.com/augurysys' >> $BASH_ENV
       - run: go mod download
       - run:
           name: 'Enforce Go minimal dependencies (Tidy) Code'
           command: go mod tidy && git diff --exit-code -- go.mod go.sum
       - run:
-          name: 'YOU FAILED GO FMT, PLEASE RUN go fmt ./... on your repo (make sure you use go version 1.18)'
-          command: 'echo "YOU FAILED GO FMT, PLEASE RUN go fmt ./... on your repo (make sure you use go version 1.18)"'
+          name: 'YOU FAILED GO dependency check, PLEASE RUN go mod tidy on your repo (make sure you use go version 1.18) and push the new go.mod \ go.sum files'
+          command: 'echo "YOU FAILED GO dependency check, PLEASE RUN go mod tidy on your repo (make sure you use go version 1.18) and push the new go.mod \ go.sum files"'
           when: on_fail
       - run:
           name: Enforce Go Formatted Code
@@ -25,6 +21,22 @@ jobs:
       - run:
           name: Run basic code analysis
           command: exit $(go vet ./...)
+      - run:
+          name: Install mockgen
+          command: go install github.com/golang/mock/mockgen@master
+      - run:
+          name: Generate api mocks
+          command: mockgen -source=api/api.go --destination=api/mocks/api_mock/api_mock.go
+      - run:
+          name: Compare mock
+          command: git diff --exit-code -- api/mocks/api_mock/api_mock.go
+      - run:
+          name: Generate request mocks
+          command: mockgen -source=api/request.go --destination=api/mocks/request_mock/request_mock.go
+      - run:
+          name: Compare mock
+          command: git diff --exit-code -- api/mocks/request_mock/request_mock.go
+
   test:
     docker:
       - image: 'cimg/go:1.21'
@@ -35,9 +47,26 @@ jobs:
           name: 'Run tests'
           command: 'go test -v -covermode=count -coverpkg=./...  ./...'
 
+  fossa_analyze:
+    docker:
+      - image: 'cimg/go:1.18'
+    working_directory: ~/fossa_analyze
+    steps:
+      - checkout
+      - run: 'curl -H ''Cache-Control: no-cache'' https://raw.githubusercontent.com/fossas/fossa-cli/master/install.sh | bash'
+      - run: 'fossa analyze'
 
 workflows:
-  tests:
+  fossa:
     jobs:
-#      - lint
+      - fossa_analyze:
+          context:
+            - fossa
+          filters:
+            branches:
+              only: master
+
+  test:
+    jobs:
+      - lint
       - test

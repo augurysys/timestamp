@@ -22,7 +22,7 @@ type Timestamp time.Time
 // the result is a string of the UNIX timestamp
 func (t Timestamp) MarshalJSON() ([]byte, error) {
 	ts := t.Time().UnixNano() / int64(time.Millisecond)
-	stamp := fmt.Sprintf("%d.%03d", ts/1000, ts%1000)
+	stamp := fmt.Sprintf("%d%03d", ts/1000, ts%1000)
 
 	return []byte(stamp), nil
 }

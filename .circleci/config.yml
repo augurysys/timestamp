@@ -22,7 +22,7 @@ jobs:
           command: exit $(go vet ./...)
   test:
     docker:
-      - image: 'cimg/go:1.18'
+      - image: 'cimg/go:1.21'
     working_directory: ~/go-api
     steps:
       - checkout

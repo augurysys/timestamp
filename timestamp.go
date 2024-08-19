@@ -6,8 +6,7 @@ package timestamp
 import (
 	"encoding/xml"
 	"fmt"
-	"github.com/globalsign/mgo/bson"
-	bson2 "go.mongodb.org/mongo-driver/bson"
+	mgoBson "go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/bsontype"
 	"strconv"
 	"time"
@@ -60,29 +59,38 @@ func (t Timestamp) GetBSON() (interface{}, error) {
 // SetBSON defines how labix.org/v2/mgo unmarshals the object from BSON,
 // the raw BSON data is unmarshaled to a time.Time object which is used for the
 // Timestamp object value
-func (t *Timestamp) SetBSON(raw bson.Raw) error {
+func (t *Timestamp) SetBSON(raw mgoBson.Raw) error {
 	var tm time.Time
 
-	if err := raw.Unmarshal(&tm); err != nil {
+	if err := mgoBson.Unmarshal(raw, &tm); err != nil {
 		return err
 	}
 
-	*t = Timestamp(tm)
+	if tm.IsZero() {
+		*t = Timestamp(time.Time{})
+	} else {
+		rv := raw.Lookup("t")
+		if rv.Type != mgoBson.TypeDateTime {
+			return fmt.Errorf("expected BSON timestamp to be a datetime")
+		}
+		millis := rv.Time().UnixNano() / int64(time.Millisecond)
+		*t = Timestamp(time.Unix(tm.Unix(), millis*int64(time.Millisecond)).UTC())
+	}
 
 	return nil
 }
 
 func (t *Timestamp) MarshalBSONValue() (bsontype.Type, []byte, error) {
 	if t == nil {
-		return bson2.MarshalValue(time.Time{})
+		return mgoBson.MarshalValue(time.Time{})
 	}
 	tm := t.Time()
-	return bson2.MarshalValue(tm)
+	return mgoBson.MarshalValue(tm)
 }
 
 func (t *Timestamp) UnmarshalBSONValue(typ bsontype.Type, data []byte) error {
 	var tm time.Time
-	rv := bson2.RawValue{Type: typ, Value: data}
+	rv := mgoBson.RawValue{Type: typ, Value: data}
 	if err := rv.Unmarshal(&tm); err != nil {
 		return err
 	}

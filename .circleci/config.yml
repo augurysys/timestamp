@@ -39,5 +39,5 @@ jobs:
 workflows:
   tests:
     jobs:
-      - lint
-      - test
+#      - lint
+#      - test

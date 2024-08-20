@@ -32,19 +32,32 @@ func (t Timestamp) MarshalJSON() ([]byte, error) {
 // a UNIX timestamp string is converted to int which is used for the Timestamp
 // object value
 func (t *Timestamp) UnmarshalJSON(b []byte) error {
-	ts, err := strconv.Atoi(string(b))
+	if len(b) == 0 {
+		return nil
+	}
+
+	// Expect a JSON number representing a UNIX timestamp with millisecond precision
+	ts, err := strconv.ParseFloat(string(b), 64)
 	if err != nil {
 		return err
 	}
 
-	int64ts := int64(ts)
-	if len(b) > 10 {
-		//support for milisecond timestamps
-		int64ts = int64(ts / 1000)
-	}
-	*t = Timestamp(time.Unix(int64ts, 0).UTC())
-
+	// Construct the Timestamp value from the UNIX timestamp
+	*t = Timestamp(time.Unix(int64(ts/1000), int64(ts)%1000*int64(time.Millisecond)).UTC())
 	return nil
+	//ts, err := strconv.Atoi(string(b))
+	//if err != nil {
+	//	return err
+	//}
+	//
+	//int64ts := int64(ts)
+	//if len(b) > 10 {
+	//	//support for milisecond timestamps
+	//	int64ts = int64(ts / 1000)
+	//}
+	//*t = Timestamp(time.Unix(int64ts, 0).UTC())
+	//
+	//return nil
 }
 
 // GetBSON defines how labix.org/v2/mgo marshals the object to BSON,

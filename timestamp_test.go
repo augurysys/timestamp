@@ -27,7 +27,7 @@ func TestMarshalJSON(t *testing.T) {
 }
 
 func TestUnmarshalJSON(t *testing.T) {
-	tm := time.Unix(3, 0).UTC()
+	tm := time.UnixMilli(3000000000000).UTC()
 	ts := Timestamp(tm)
 
 	b, err := ts.MarshalJSON()

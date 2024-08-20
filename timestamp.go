@@ -4,7 +4,6 @@
 package timestamp
 
 import (
-	"encoding/json"
 	"encoding/xml"
 	"fmt"
 	"github.com/globalsign/mgo/bson"
@@ -22,7 +21,7 @@ type Timestamp time.Time
 
 // MarshalJSON defines how encoding/json marshals the object to JSON,
 // the result is a string of the UNIX timestamp
-func (t *Timestamp) MarshalJSON() ([]byte, error) {
+func (t Timestamp) MarshalJSON() ([]byte, error) {
 	ts := t.Time().UnixMilli()
 	stamp := fmt.Sprint(ts)
 
@@ -33,14 +32,18 @@ func (t *Timestamp) MarshalJSON() ([]byte, error) {
 // a UNIX timestamp string is converted to int which is used for the Timestamp
 // object value
 func (t *Timestamp) UnmarshalJSON(b []byte) error {
-	var ts int64
-	if len(b) == 0 {
-		return nil
-	}
-	if err := json.Unmarshal(b, &ts); err != nil {
+	ts, err := strconv.Atoi(string(b))
+	if err != nil {
 		return err
 	}
-	*t = Timestamp(time.Unix(ts/1000, (ts%1000)*int64(time.Millisecond)).UTC())
+
+	int64ts := int64(ts)
+	if len(b) > 10 {
+		//support for milisecond timestamps
+		int64ts = int64(ts / 1000)
+	}
+	*t = Timestamp(time.Unix(int64ts, 0).UTC())
+
 	return nil
 }
 

@@ -8,7 +8,7 @@ import (
 )
 
 func TestMarshalJSON(t *testing.T) {
-	tm := time.Unix(3000, 0)
+	tm := time.Unix(3, 0)
 	ts := Timestamp(tm)
 
 	b, err := ts.MarshalJSON()
@@ -27,7 +27,7 @@ func TestMarshalJSON(t *testing.T) {
 }
 
 func TestUnmarshalJSON(t *testing.T) {
-	tm := time.Unix(3000, 0).UTC()
+	tm := time.Unix(3, 0).UTC()
 	ts := Timestamp(tm)
 
 	b, err := ts.MarshalJSON()

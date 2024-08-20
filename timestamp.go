@@ -7,7 +7,8 @@ import (
 	"encoding/json"
 	"encoding/xml"
 	"fmt"
-	mgoBson "go.mongodb.org/mongo-driver/bson"
+	"github.com/globalsign/mgo/bson"
+	bson2 "go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/bsontype"
 	"strconv"
 	"time"
@@ -21,9 +22,9 @@ type Timestamp time.Time
 
 // MarshalJSON defines how encoding/json marshals the object to JSON,
 // the result is a string of the UNIX timestamp
-func (t Timestamp) MarshalJSON() ([]byte, error) {
-	ts := t.Time().UnixNano() / int64(time.Millisecond)
-	stamp := fmt.Sprintf("%d%03d", ts/1000, ts%1000)
+func (t *Timestamp) MarshalJSON() ([]byte, error) {
+	ts := t.Time().UnixMilli()
+	stamp := fmt.Sprint(ts)
 
 	return []byte(stamp), nil
 }
@@ -56,34 +57,29 @@ func (t Timestamp) GetBSON() (interface{}, error) {
 // SetBSON defines how labix.org/v2/mgo unmarshals the object from BSON,
 // the raw BSON data is unmarshaled to a time.Time object which is used for the
 // Timestamp object value
-func (t *Timestamp) SetBSON(raw mgoBson.Raw) error {
+func (t *Timestamp) SetBSON(raw bson.Raw) error {
 	var tm time.Time
 
-	if err := mgoBson.Unmarshal(raw, &tm); err != nil {
+	if err := raw.Unmarshal(&tm); err != nil {
 		return err
 	}
 
-	if tm.IsZero() {
-		*t = Timestamp(time.Time{})
-	} else {
-		millis := int64(raw[4])<<24 + int64(raw[5])<<16 + int64(raw[6])<<8 + int64(raw[7])
-		*t = Timestamp(time.Unix(tm.Unix(), millis*int64(time.Millisecond)).UTC())
-	}
+	*t = Timestamp(tm)
 
 	return nil
 }
 
 func (t *Timestamp) MarshalBSONValue() (bsontype.Type, []byte, error) {
 	if t == nil {
-		return mgoBson.MarshalValue(time.Time{})
+		return bson2.MarshalValue(time.Time{})
 	}
 	tm := t.Time()
-	return mgoBson.MarshalValue(tm)
+	return bson2.MarshalValue(tm)
 }
 
 func (t *Timestamp) UnmarshalBSONValue(typ bsontype.Type, data []byte) error {
 	var tm time.Time
-	rv := mgoBson.RawValue{Type: typ, Value: data}
+	rv := bson2.RawValue{Type: typ, Value: data}
 	if err := rv.Unmarshal(&tm); err != nil {
 		return err
 	}

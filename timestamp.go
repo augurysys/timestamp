@@ -22,10 +22,17 @@ type Timestamp time.Time
 // MarshalJSON defines how encoding/json marshals the object to JSON,
 // the result is a string of the UNIX timestamp
 func (t Timestamp) MarshalJSON() ([]byte, error) {
-	ts := t.Time().UnixMilli()
+	var ts int64
+	if t.Time().Unix() < 1e12 {
+		// timestamp is in seconds
+		ts = t.Time().Unix()
+	} else {
+		// timestamp is in milliseconds
+		ts = t.Time().UnixMilli()
+	}
 	stamp := fmt.Sprint(ts)
-
 	return []byte(stamp), nil
+
 }
 
 // UnmarshalJSON defines how encoding/json unmarshals the object from JSON,
@@ -39,7 +46,11 @@ func (t *Timestamp) UnmarshalJSON(b []byte) error {
 	if err != nil {
 		return err
 	}
-	*t = Timestamp(time.Unix(int64(ts/1000), int64(ts)%1000*int64(time.Millisecond)).UTC())
+	if len(b) > 10 {
+		*t = Timestamp(time.Unix(int64(ts/1000), int64(ts)%1000*int64(time.Millisecond)).UTC())
+	} else {
+		*t = Timestamp(time.Unix(int64(ts), 0).UTC())
+	}
 	return nil
 }
 

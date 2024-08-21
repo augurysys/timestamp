@@ -21,13 +21,33 @@ func TestMarshalJSON(t *testing.T) {
 		t.Error(err)
 	}
 
-	if temp != 3000 {
+	if temp != 3 {
 		t.Fail()
 	}
 }
 
 func TestUnmarshalJSON(t *testing.T) {
 	tm := time.UnixMilli(3000000000000).UTC()
+	ts := Timestamp(tm)
+
+	b, err := ts.MarshalJSON()
+	if err != nil {
+		t.Error(err)
+	}
+
+	var temp Timestamp
+
+	if err := temp.UnmarshalJSON(b); err != nil {
+		t.Error(err)
+	}
+
+	if temp != ts {
+		t.Fail()
+	}
+}
+
+func TestUnmarshalJSONMM(t *testing.T) {
+	tm := time.Unix(3, 0).UTC()
 	ts := Timestamp(tm)
 
 	b, err := ts.MarshalJSON()

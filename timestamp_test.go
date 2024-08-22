@@ -8,7 +8,7 @@ import (
 )
 
 func TestMarshalJSON(t *testing.T) {
-	tm := time.Unix(3000, 0)
+	tm := time.UnixMilli(3000)
 	ts := Timestamp(tm)
 
 	b, err := ts.MarshalJSON()
@@ -27,6 +27,28 @@ func TestMarshalJSON(t *testing.T) {
 }
 
 func TestUnmarshalJSON(t *testing.T) {
+	tm := time.Now().UTC()
+	ts := Timestamp(tm)
+
+	b, err := ts.MarshalJSON()
+	if err != nil {
+		t.Error(err)
+	}
+
+	var temp Timestamp
+
+	if err := temp.UnmarshalJSON(b); err != nil {
+		t.Error(err)
+	}
+
+	if temp != ts {
+		t.Fail()
+	}
+	t.Log("temp", temp)
+	t.Log("ts", ts)
+}
+
+func TestUnmarshalJSON1970(t *testing.T) {
 	tm := time.Unix(3000, 0).UTC()
 	ts := Timestamp(tm)
 
@@ -34,6 +56,12 @@ func TestUnmarshalJSON(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
+	//b, err := ts.MarshalJSON()
+	//if err != nil {
+	//	t.Error(err)
+	//}
+	// unmarshell
+	t.Log(len(b))
 
 	var temp Timestamp
 
@@ -44,13 +72,38 @@ func TestUnmarshalJSON(t *testing.T) {
 	if temp != ts {
 		t.Fail()
 	}
+	t.Log("temp", temp)
+	t.Log("ts", ts)
 }
 
 func TestUnmarshalJSONWithMilliSec(t *testing.T) {
-	tm := time.Unix(1705488329917, 0).UTC()
+	tm := time.Now().UTC()
 	ts := Timestamp(tm)
 
 	b, err := ts.MarshalJSON()
+	if err != nil {
+		t.Error(err)
+	}
+
+	var temp Timestamp
+
+	if err := temp.UnmarshalJSON(b); err != nil {
+		t.Error(err)
+	}
+	if temp != Timestamp(ts.Time().Truncate(time.Millisecond)) {
+		t.Fail()
+	}
+
+	t.Log("temp", temp)
+	t.Log("ts", ts)
+	t.Log("done")
+}
+
+func TestUnmarshalJSONWithMilliSecByte(t *testing.T) {
+	tm := time.Unix(3, 0).UTC()
+	ts := Timestamp(tm)
+
+	b, err := ts.MarshalJSONOld()
 	if err != nil {
 		t.Error(err)
 	}
@@ -64,6 +117,32 @@ func TestUnmarshalJSONWithMilliSec(t *testing.T) {
 	if temp != ts {
 		t.Fail()
 	}
+	t.Log("temp", temp)
+	t.Log("ts", ts)
+	t.Log("done")
+}
+
+func TestUnmarshalJSONWithMilliSecByte(t *testing.T) {
+	tm := time.Unix(3, 0).UTC()
+	ts := Timestamp(tm)
+
+	b, err := ts.MarshalJSONOld()
+	if err != nil {
+		t.Error(err)
+	}
+
+	var temp Timestamp
+
+	if err := temp.UnmarshalJSON(b); err != nil {
+		t.Error(err)
+	}
+
+	if temp != ts {
+		t.Fail()
+	}
+	t.Log("temp", temp)
+	t.Log("ts", ts)
+	t.Log("done")
 }
 
 func TestString(t *testing.T) {

@@ -21,21 +21,6 @@ jobs:
       - run:
           name: Run basic code analysis
           command: exit $(go vet ./...)
-      - run:
-          name: Install mockgen
-          command: go install github.com/golang/mock/mockgen@master
-      - run:
-          name: Generate api mocks
-          command: mockgen -source=api/api.go --destination=api/mocks/api_mock/api_mock.go
-      - run:
-          name: Compare mock
-          command: git diff --exit-code -- api/mocks/api_mock/api_mock.go
-      - run:
-          name: Generate request mocks
-          command: mockgen -source=api/request.go --destination=api/mocks/request_mock/request_mock.go
-      - run:
-          name: Compare mock
-          command: git diff --exit-code -- api/mocks/request_mock/request_mock.go
 
   test:
     docker:

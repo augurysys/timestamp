@@ -21,6 +21,9 @@ type Timestamp time.Time
 
 func (t Timestamp) MarshalJSON() ([]byte, error) {
 	ts := t.Time().UnixMilli()
+	if ts == 0 {
+		return []byte("0"), nil
+	}
 	stamp := fmt.Sprintf("%011d", ts)
 	return []byte(stamp), nil
 }

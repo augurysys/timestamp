@@ -8,7 +8,7 @@ import (
 )
 
 func TestMarshalJSON(t *testing.T) {
-	tm := time.Unix(3, 0)
+	tm := time.Unix(3000, 0)
 	ts := Timestamp(tm)
 
 	b, err := ts.MarshalJSON()
@@ -21,13 +21,13 @@ func TestMarshalJSON(t *testing.T) {
 		t.Error(err)
 	}
 
-	if temp != 3 {
+	if temp != 3000 {
 		t.Fail()
 	}
 }
 
 func TestUnmarshalJSON(t *testing.T) {
-	tm := time.UnixMilli(3000000000000).UTC()
+	tm := time.Unix(3000, 0).UTC()
 	ts := Timestamp(tm)
 
 	b, err := ts.MarshalJSON()

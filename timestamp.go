@@ -46,6 +46,8 @@ func (t *Timestamp) UnmarshalJSON(b []byte) error {
 	if err != nil {
 		return err
 	}
+	fmt.Println("b!!!", b)
+	fmt.Println("b len!!!", len(b))
 	if len(b) > 10 {
 		*t = Timestamp(time.Unix(int64(ts/1000), int64(ts)%1000*int64(time.Millisecond)).UTC())
 	} else {

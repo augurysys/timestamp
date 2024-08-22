@@ -46,8 +46,8 @@ func TestUnmarshalJSON(t *testing.T) {
 	}
 }
 
-func TestUnmarshalJSONMM(t *testing.T) {
-	tm := time.Unix(3, 0).UTC()
+func TestUnmarshalJSONWithMilliSec(t *testing.T) {
+	tm := time.Unix(1705488329917, 0).UTC()
 	ts := Timestamp(tm)
 
 	b, err := ts.MarshalJSON()

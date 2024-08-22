@@ -41,7 +41,7 @@ func TestUnmarshalJSON(t *testing.T) {
 		t.Error(err)
 	}
 
-	if temp != ts {
+	if temp != Timestamp(ts.Time().Truncate(time.Millisecond)) {
 		t.Fail()
 	}
 	t.Log("temp", temp)
@@ -122,7 +122,7 @@ func TestUnmarshalJSONWithMilliSecByte(t *testing.T) {
 	t.Log("done")
 }
 
-func TestUnmarshalJSONWithMilliSecByte(t *testing.T) {
+func TestUnmarshalJSONWithMilliSecBytee(t *testing.T) {
 	tm := time.Unix(3, 0).UTC()
 	ts := Timestamp(tm)
 

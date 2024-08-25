@@ -19,9 +19,16 @@ import (
 // to/from BSON
 type Timestamp time.Time
 
-// MarshalJSON defines how encoding/json marshals the object to JSON,
-// the result is a string of the UNIX timestamp
 func (t Timestamp) MarshalJSON() ([]byte, error) {
+	ts := t.Time().UnixMilli()
+	if ts == 0 {
+		return []byte("0"), nil
+	}
+	stamp := fmt.Sprintf("%011d", ts)
+	return []byte(stamp), nil
+}
+
+func (t Timestamp) MarshalJSONOld() ([]byte, error) {
 	ts := t.Time().Unix()
 	stamp := fmt.Sprint(ts)
 
@@ -31,7 +38,7 @@ func (t Timestamp) MarshalJSON() ([]byte, error) {
 // UnmarshalJSON defines how encoding/json unmarshals the object from JSON,
 // a UNIX timestamp string is converted to int which is used for the Timestamp
 // object value
-func (t *Timestamp) UnmarshalJSON(b []byte) error {
+func (t *Timestamp) UnmarshalJSONOld(b []byte) error {
 	ts, err := strconv.Atoi(string(b))
 	if err != nil {
 		return err
@@ -43,6 +50,26 @@ func (t *Timestamp) UnmarshalJSON(b []byte) error {
 		int64ts = int64(ts / 1000)
 	}
 	*t = Timestamp(time.Unix(int64ts, 0).UTC())
+
+	return nil
+}
+
+func (t *Timestamp) UnmarshalJSON(b []byte) error {
+	ts, err := strconv.Atoi(string(b))
+	if err != nil {
+		return err
+	}
+
+	int64ts := int64(ts)
+	timestamp := time.Time{}
+	if len(b) > 10 {
+		//support for milisecond timestamps
+		int64ts = int64(ts / 1000)
+		timestamp = time.Unix(int64ts, int64(ts)%1000*int64(time.Millisecond))
+	} else {
+		timestamp = time.Unix(int64ts, 0)
+	}
+	*t = Timestamp(timestamp.UTC())
 
 	return nil
 }

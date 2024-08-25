@@ -8,7 +8,7 @@ import (
 )
 
 func TestMarshalJSON(t *testing.T) {
-	tm := time.Unix(3000, 0)
+	tm := time.UnixMilli(3000)
 	ts := Timestamp(tm)
 
 	b, err := ts.MarshalJSON()
@@ -26,8 +26,78 @@ func TestMarshalJSON(t *testing.T) {
 	}
 }
 
+// Test the NEW MashalJSON method for dates before 1970
+func TestMarshalJSONOld(t *testing.T) {
+	tm := time.UnixMilli(-3000)
+	ts := Timestamp(tm)
+
+	b, err := ts.MarshalJSON()
+	if err != nil {
+		t.Error(err)
+	}
+
+	temp, err := strconv.Atoi(string(b))
+	if err != nil {
+		t.Error(err)
+	}
+
+	if temp != -3000 {
+		t.Fail()
+	}
+}
+
+// Check the NEW MarshalJSON with the NEW UnmarshalJSON methods for recent date time values
 func TestUnmarshalJSON(t *testing.T) {
+	tm := time.Now().UTC()
+	ts := Timestamp(tm)
+
+	b, err := ts.MarshalJSON()
+	if err != nil {
+		t.Error(err)
+	}
+
+	var temp Timestamp
+
+	if err := temp.UnmarshalJSON(b); err != nil {
+		t.Error(err)
+	}
+
+	// we expect to lose the milliseconds part of the timestamp
+	if temp != Timestamp(ts.Time().Truncate(time.Millisecond)) {
+		t.Fail()
+	}
+	t.Log("temp", temp)
+	t.Log("ts", ts)
+}
+
+// Check the NEW MarshalJSON with the NEW UnmarshalJSON methods for old dates (slightly after 1970)
+func TestUnmarshalJSON1970(t *testing.T) {
 	tm := time.Unix(3000, 0).UTC()
+	ts := Timestamp(tm)
+
+	b, err := ts.MarshalJSON()
+	if err != nil {
+		t.Error(err)
+	}
+
+	t.Log(len(b))
+
+	var temp Timestamp
+
+	if err := temp.UnmarshalJSON(b); err != nil {
+		t.Error(err)
+	}
+
+	if temp != ts {
+		t.Fail()
+	}
+	t.Log("temp", temp)
+	t.Log("ts", ts)
+}
+
+// Check the NEW MarshalJSON with the NEW UnmarshalJSON methods for date before 1970
+func TestUnmarshalJSONBefore1970(t *testing.T) {
+	tm := time.Unix(-3000, 666000000).UTC()
 	ts := Timestamp(tm)
 
 	b, err := ts.MarshalJSON()
@@ -44,6 +114,105 @@ func TestUnmarshalJSON(t *testing.T) {
 	if temp != ts {
 		t.Fail()
 	}
+	t.Log("temp", temp)
+	t.Log("ts", ts)
+}
+
+// Check the NEW MarshalJSON with the OLD UnmarshalJSON methods for recent date time values with milliseconds
+func TestUnmarshalJSONWithMilliSec(t *testing.T) {
+	tm := time.Now().UTC()
+	ts := Timestamp(tm)
+
+	b, err := ts.MarshalJSON()
+	if err != nil {
+		t.Error(err)
+	}
+
+	var temp Timestamp
+
+	if err := temp.UnmarshalJSONOld(b); err != nil {
+		t.Error(err)
+	}
+	if temp != Timestamp(ts.Time().Truncate(time.Second)) {
+		t.Fail()
+	}
+
+	t.Log("temp", temp)
+	t.Log("ts", ts)
+	t.Log("done")
+}
+
+// Check the NEW MarshalJSON with the OLD UnmarshalJSON methods for dates close to 1970
+func TestUnmarshalJSONOld1970(t *testing.T) {
+	tm := time.Unix(3, 666000000).UTC()
+	ts := Timestamp(tm)
+
+	b, err := ts.MarshalJSON()
+	if err != nil {
+		t.Error(err)
+	}
+
+	var temp Timestamp
+
+	if err := temp.UnmarshalJSONOld(b); err != nil {
+		t.Error(err)
+	}
+
+	if temp != Timestamp(ts.Time().Truncate(time.Second)) {
+		t.Fail()
+	}
+	t.Log("temp", temp)
+	t.Log("ts", ts)
+	t.Log("done")
+}
+
+// Check the OLD MarshalJSON with the NEW UnmarshalJSON methods for dates close to 1970
+func TestOldMarshalWithNewUnmarshalJSON(t *testing.T) {
+	tm := time.Unix(3, 666000000).UTC()
+	ts := Timestamp(tm)
+
+	b, err := ts.MarshalJSONOld()
+	if err != nil {
+		t.Error(err)
+	}
+
+	var temp Timestamp
+
+	if err := temp.UnmarshalJSON(b); err != nil {
+		t.Error(err)
+	}
+
+	// we expect to lose the milliseconds part of the timestamp
+	if temp != Timestamp(ts.Time().Truncate(time.Second)) {
+		t.Fail()
+	}
+	t.Log("temp", temp)
+	t.Log("ts", ts)
+	t.Log("done")
+}
+
+// Check the OLD MarshalJSON with the NEW UnmarshalJSON methods for recent date time values
+func TestOldMarshalWithNewUnmarshalJSONRecentTime(t *testing.T) {
+	tm := time.Now().UTC()
+	ts := Timestamp(tm)
+
+	b, err := ts.MarshalJSONOld()
+	if err != nil {
+		t.Error(err)
+	}
+
+	var temp Timestamp
+
+	if err := temp.UnmarshalJSON(b); err != nil {
+		t.Error(err)
+	}
+
+	if temp != Timestamp(ts.Time().Truncate(time.Second)) {
+		t.Fail()
+	}
+	t.Log("temp", temp)
+	t.Log("ts", ts)
+	t.Log("done")
 }
 
 func TestString(t *testing.T) {

@@ -191,3 +191,22 @@ func (t Timestamp) ToMili() int64 {
 func (t *Timestamp) IsEmpty() bool {
 	return t == nil || t.Time().IsZero() || t.Unix() == 0
 }
+
+func (t *Timestamp) IsValid() bool {
+	return IsValidEpoch(t.Unix())
+}
+
+func IsValidEpoch(epoch int64) bool {
+	t := time.Unix(epoch, 0)
+	if t.IsZero() {
+		return false
+	}
+
+	now := time.Now()
+	year := t.Year()
+	if year < 2010 || year > now.Year()+10 {
+		return false
+	}
+
+	return true
+}

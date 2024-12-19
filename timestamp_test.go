@@ -153,3 +153,18 @@ func TestIsEmpty(t *testing.T) {
 		t.Fail()
 	}
 }
+
+func TestValid(t *testing.T) {
+	if !IsValidEpoch(time.Now().Unix()) {
+		t.Fail()
+	}
+
+	date := time.Date(1970, 1, 1, 0, 0, 0, 0, time.UTC)
+	if IsValidEpoch(date.Unix()) {
+		t.Fail()
+	}
+
+	if IsValidEpoch(time.Now().AddDate(11, 0, 0).Unix()) {
+		t.Fail()
+	}
+}

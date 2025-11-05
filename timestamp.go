@@ -10,6 +10,7 @@ import (
 	bson2 "go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/bsontype"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -30,19 +31,40 @@ func (t Timestamp) MarshalJSON() ([]byte, error) {
 // a UNIX timestamp string is converted to int which is used for the Timestamp
 // object value
 func (t *Timestamp) UnmarshalJSON(b []byte) error {
-	ts, err := strconv.Atoi(string(b))
-	if err != nil {
-		return err
+	s := strings.Trim(string(b), `"`)
+	if s == "" {
+		return nil
 	}
 
-	int64ts := int64(ts)
-	if len(b) > 10 {
-		//support for milisecond timestamps
-		int64ts = int64(ts / 1000)
+	// Try integer (Unix timestamp)
+	if ts, err := strconv.ParseInt(s, 10, 64); err == nil {
+		// Handle millisecond timestamps too
+		if ts > 1e12 {
+			ts = ts / 1000
+		}
+		*t = Timestamp(time.Unix(ts, 0).UTC())
+		return nil
 	}
-	*t = Timestamp(time.Unix(int64ts, 0).UTC())
 
-	return nil
+	// Otherwise, try date/time formats
+	layouts := []string{
+		time.RFC3339,
+		"2006-01-02T15:04:05",
+		"2006-01-02T15:04",
+		"2006-01-02",
+	}
+
+	var parsed time.Time
+	var err error
+	for _, layout := range layouts {
+		parsed, err = time.Parse(layout, s)
+		if err == nil {
+			*t = Timestamp(parsed)
+			return nil
+		}
+	}
+
+	return fmt.Errorf("cannot parse time %q: %v", s, err)
 }
 
 // GetBSON defines how labix.org/v2/mgo marshals the object to BSON,
